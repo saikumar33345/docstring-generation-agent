@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-class ChatRequest(BaseModel):
-    question: str
+class DocstringRequest(BaseModel):
+    file_path: str
 
-class ChatResponse(BaseModel):
-    answer: str
+class DocstringResponse(BaseModel):
+    updated_code: str

@@ -1,16 +1,14 @@
 from fastapi import FastAPI
-from app.models import ChatRequest, ChatResponse
-from app.agents import run_genai,run_agent2
+from app.models import DocstringRequest, DocstringResponse
+from app.agents import run_docstring_agent
 
-app = FastAPI(title="LangChain Gemini Agent Tutorial")
+app = FastAPI(title="Docstring Generation Agent")
 
-@app.post("/genai/chat", response_model=ChatResponse)
-def chat_with_agent(payload: ChatRequest):
-    answer = run_genai(payload.question)
-    return ChatResponse(answer=answer)
+@app.get("/about")
+def about():
+    return {"message": "Docstring Generation Agent using Gemini"}
 
-
-@app.post("/genai/agent", response_model=ChatResponse)
-def chat_with_agent(payload: ChatRequest):
-    answer = run_agent2(payload.question)
-    return ChatResponse(answer=answer)
+@app.post("/generate-docstrings", response_model=DocstringResponse)
+def generate_docstrings(payload: DocstringRequest):
+    updated_code = run_docstring_agent(payload.file_path)
+    return DocstringResponse(updated_code=updated_code)

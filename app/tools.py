@@ -2,19 +2,24 @@
 Tools for the agent.
 Define your LangChain tools here.
 """
-from typing import List, Dict, Any
 from langchain.tools import tool
 
-# Example tool
 @tool
-def calculator(expression: str) -> str:
+def read_python_file(file_path: str) -> str:
     """
-    Evaluate a math expression.
-    Example: "2 + 2 * 10"
+    Reads a Python file and returns its content as a string.
     """
     try:
-        return str(eval(expression))
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        if not content.strip():
+            return "Error: The file is empty."
+        
+        return content
+
+    except FileNotFoundError:
+        return "Error: File not found."
     except Exception as e:
         return f"Error: {str(e)}"
-    
 
