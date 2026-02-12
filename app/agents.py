@@ -1,4 +1,5 @@
 import re
+import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import create_agent
 from app.config import GOOGLE_API_KEY
@@ -35,10 +36,18 @@ add a short module-level docstring at the top describing the script.
 
 def run_docstring_agent(file_path: str) -> str:
     try:
-    
+        
+        file_path = os.path.normpath(file_path)
+
+       
+        if not os.path.isabs(file_path):
+            file_path = os.path.join(os.getcwd(), file_path)
+
+       
         with open(file_path, "r", encoding="utf-8") as f:
             raw_content = f.read()
 
+       
         if not raw_content.strip():
             return '"""Empty Python file."""'
 
@@ -47,7 +56,6 @@ def run_docstring_agent(file_path: str) -> str:
     except Exception as e:
         return f"Error reading file: {str(e)}"
 
-   
     user_message = f"""
 Use the read_python_file tool to read the file at this path:
 {file_path}
@@ -71,7 +79,7 @@ Return ONLY the full updated Python code.
         if content is None:
             return "Error: Agent returned empty content."
 
-        
+       
         if isinstance(content, list):
             content = "".join(
                 [c.get("text", "") for c in content if isinstance(c, dict)]
@@ -79,7 +87,7 @@ Return ONLY the full updated Python code.
 
         content = str(content).strip()
 
-        
+    
         if content.startswith("```"):
             content = re.sub(r"```[a-zA-Z]*", "", content)
             content = content.replace("```", "").strip()

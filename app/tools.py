@@ -1,7 +1,4 @@
-"""
-Tools for the agent.
-Define your LangChain tools here.
-"""
+
 from langchain.tools import tool
 
 @tool
