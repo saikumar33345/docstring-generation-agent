@@ -1,6 +1,6 @@
-🧠 Docstring Generation Agent
+ Docstring Generation Agent
 Epoch AI/ML Club × Nasiko Hackathon Submission
-📌 Problem Statement
+ Problem Statement
 
 Build an AI Agent that:
 
@@ -14,13 +14,13 @@ Classes
 
 Methods
 
-✅ Selected Challenge
+>Selected Challenge
 
 This submission implements the Docstring Generation Agent.
 
 The agent analyzes Python files and generates concise, professional, Google-style docstrings while preserving original code logic and structure.
 
-🚀 Solution Overview
+-> Solution Overview
 
 The system is built using:
 
@@ -32,7 +32,7 @@ Google Gemini API – LLM for docstring generation
 
 Tool-based file reading approach
 
-🏗 Agent Design
+->Agent Design
 Architecture Structure
 project_root/
 │
@@ -61,7 +61,7 @@ Execution Flow
 
 7.Executable Python code is returned.
 
-📡 API Usage
+ API Usage
 Endpoint
 
 POST /generate-docstrings
@@ -77,7 +77,7 @@ Response
 }
 
 
-🎯 Goal Satisfaction
+ Goal Satisfaction
 
 The agent correctly:
 
@@ -101,7 +101,7 @@ Preserves original code logic
 
 Returns executable Python code
 
-🧩 Prompt & Coding Style
+Prompt & Coding Style
 
 Modular file structure
 
@@ -135,7 +135,7 @@ The system explicitly handles:
 
 Quota errors and file-not-found cases are safely handled.
 
-📌 Assumptions
+ Assumptions
 
 Input file is valid Python code
 
@@ -153,7 +153,7 @@ Free-tier API usage may have quota restrictions
 No AST-level structural validation (LLM-based generation approach)
 
 
-🔮 Future Improvements
+Future Improvements
 
 AST-based deterministic docstring insertion
 
