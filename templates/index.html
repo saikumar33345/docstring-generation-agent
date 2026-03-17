@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Docstring Generator</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 650px;
+            padding: 30px;
+            background: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        pre {
+            margin-top: 20px;
+            background: #020617;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            max-height: 350px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>AI Docstring Generator</h1>
+
+    <input id="path" placeholder="Enter file or folder path (e.g., app)" />
+
+    <button onclick="generate()">Generate Docstrings</button>
+
+    <pre id="output">Output will appear here...</pre>
+</div>
+
+<script>
+async function generate() {
+    const path = document.getElementById("path").value;
+
+    const response = await fetch("/generate-docstrings", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ file_path: path })
+    });
+
+    const data = await response.json();
+
+    let output = "";
+
+    if (data.results) {
+        for (const file in data.results) {
+            output += "📄 " + file + "\n\n";
+            output += data.results[file] + "\n\n-------------------------\n\n";
+        }
+    } else {
+        output = "Error: Unable to process request.";
+    }
+
+    document.getElementById("output").textContent = output;
+}
+</script>
+
+</body>
+</html>

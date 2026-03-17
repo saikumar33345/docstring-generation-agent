@@ -1,11 +1,21 @@
 import re
 import os
 import time
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
 from app.models import DocstringRequest, DocstringResponse
 from app.agents import run_docstring_agent
 
 app = FastAPI(title="Docstring Generation Agent")
+
+templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.get("/about")
@@ -60,21 +70,22 @@ def generate_docstrings(payload: DocstringRequest):
         try:
             result = run_docstring_agent(file)
 
-    
             if "API key" in result or "INVALID_ARGUMENT" in result:
                 return DocstringResponse(
                     files_processed=0,
                     results={"error": "API key invalid or expired. Please update your API key."}
                 )
 
-           
             output_path = file.replace(".py", "_doc.py")
 
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(result)
 
             clean_path = output_path.replace("\\", "/")
-            results[clean_path] = "Saved successfully"
+
+            # 🔥 SHOW PREVIEW IN UI
+            preview = result[:300] + "..." if len(result) > 300 else result
+            results[clean_path] = preview
 
             time.sleep(10)
 
