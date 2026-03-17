@@ -1,109 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AI Docstring Generator</title>
+<meta charset="UTF-8">
+<title>AI Docstring Generator</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+<style>
+body {
+    font-family: Arial;
+    background: #0f172a;
+    color: #e2e8f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
 
-        .container {
-            width: 650px;
-            padding: 30px;
-            background: #1e293b;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+.container {
+    width: 750px;
+    padding: 30px;
+    background: #1e293b;
+    border-radius: 12px;
+}
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+h2 {
+    text-align: center;
+    margin-bottom: 15px;
+}
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+button {
+    width: 100%;
+    padding: 12px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
 
-        button:hover {
-            background: #2563eb;
-        }
+button:hover {
+    background: #2563eb;
+}
 
-        pre {
-            margin-top: 20px;
-            background: #020617;
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-            max-height: 350px;
-            white-space: pre-wrap;
-        }
-    </style>
+pre {
+    background: #020617;
+    padding: 15px;
+    border-radius: 8px;
+    height: 300px;
+    overflow-y: auto;       
+    white-space: pre-wrap;
+}
+
+.note {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 15px;
+}
+</style>
+
 </head>
 
 <body>
 
 <div class="container">
-    <h1>AI Docstring Generator</h1>
 
-    <input id="path" placeholder="Enter file or folder path (e.g., app)" />
+<h2>AI Docstring Generator</h2>
 
-    <button onclick="generate()">Generate Docstrings</button>
+<input id="path" placeholder="Enter server path (e.g., app/) OR type natural language" />
 
-    <pre id="output">Output will appear here...</pre>
+<p class="note">
+Note:
+- Use "app/" for server-side files  
+- Use Upload for local files  
+- You can type: "generate docstring for test.py"
+</p>
+
+<button id="btn" onclick="generate()">Generate</button>
+
+<hr>
+
+<h3>Upload Python File</h3>
+
+<input type="file" id="fileInput">
+<button onclick="uploadFile()">Upload & Generate</button>
+
+<pre id="output">Output will appear here...</pre>
+
 </div>
 
 <script>
+
 async function generate() {
-    const path = document.getElementById("path").value;
+    const input = document.getElementById("path").value;
+    const output = document.getElementById("output");
+    const btn = document.getElementById("btn");
 
-    const response = await fetch("/generate-docstrings", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ file_path: path })
-    });
+    
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+    output.textContent = "⏳ Generating docstrings... please wait...\n";
 
-    const data = await response.json();
+    try {
+        const res = await fetch("/generate-docstrings", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                file_path: input,
+                message: input
+            })
+        });
 
-    let output = "";
+        const data = await res.json();
 
-    if (data.results) {
-        for (const file in data.results) {
-            output += "📄 " + file + "\n\n";
-            output += data.results[file] + "\n\n-------------------------\n\n";
+        
+        if (data.results && data.results.error) {
+            output.textContent =
+                "❌ " + data.results.error +
+                "\n\n👉 Use file upload OR provide server path like 'app/'";
+            
+            btn.innerText = "Generate";
+            btn.disabled = false;
+            return;
         }
-    } else {
-        output = "Error: Unable to process request.";
+
+        let text = "";
+
+        if (data.results) {
+            for (const file in data.results) {
+                text += "📄 " + file + "\n\n";
+                text += data.results[file] + "\n\n-------------------------\n\n";
+            }
+        } else {
+            text = "❌ Unexpected error occurred.";
+        }
+
+        output.textContent = text;
+
+    } catch (err) {
+        output.textContent = "❌ Error occurred while processing.";
     }
 
-    document.getElementById("output").textContent = output;
+    btn.innerText = "Generate";
+    btn.disabled = false;
 }
+
+
+async function uploadFile() {
+    const fileInput = document.getElementById("fileInput");
+    const output = document.getElementById("output");
+
+    if (!fileInput.files.length) {
+        alert("Please select a file first.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    output.textContent = "⏳ Uploading & processing...";
+
+    try {
+        const res = await fetch("/upload-docstrings", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+            output.textContent = "❌ " + data.error;
+            return;
+        }
+
+        output.textContent =
+            "📄 " + data.filename + "\n\n" + data.result;
+
+    } catch (err) {
+        output.textContent = "❌ Upload failed.";
+    }
+}
+
 </script>
 
 </body>
