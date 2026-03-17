@@ -1,9 +1,10 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict
 
 class DocstringRequest(BaseModel):
     file_path: Optional[str] = None
     message: Optional[str] = None
 
 class DocstringResponse(BaseModel):
-    updated_code: str
+    files_processed: int
+    results: Dict[str, str]

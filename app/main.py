@@ -1,0 +1,88 @@
+import re
+import os
+import time
+from fastapi import FastAPI
+from app.models import DocstringRequest, DocstringResponse
+from app.agents import run_docstring_agent
+
+app = FastAPI(title="Docstring Generation Agent")
+
+
+@app.get("/about")
+def about():
+    return {"message": "Docstring Generation Agent using Gemini"}
+
+
+def get_python_files(path):
+    if os.path.isfile(path) and path.endswith(".py"):
+        return [path]
+
+    python_files = []
+
+    for root, _, files in os.walk(path):
+        for file in files:
+            if file.endswith(".py") and not file.startswith("__"):
+                python_files.append(os.path.join(root, file))
+
+    return python_files
+
+
+@app.post("/generate-docstrings", response_model=DocstringResponse)
+def generate_docstrings(payload: DocstringRequest):
+
+    file_path = payload.file_path
+
+    if not file_path or file_path.strip().lower() == "string":
+        file_path = None
+
+    if not file_path and payload.message:
+        match = re.search(r'([A-Za-z0-9_:\\/.\-]+\.py)', payload.message)
+        if match:
+            file_path = match.group(1).replace("\\", "/")
+
+    if not file_path:
+        return DocstringResponse(
+            files_processed=0,
+            results={"error": "No valid Python file or folder detected."}
+        )
+
+    files = get_python_files(file_path)
+
+    if not files:
+        return DocstringResponse(
+            files_processed=0,
+            results={"error": "No Python files found."}
+        )
+
+    results = {}
+
+    for file in files:
+        try:
+            result = run_docstring_agent(file)
+
+    
+            if "API key" in result or "INVALID_ARGUMENT" in result:
+                return DocstringResponse(
+                    files_processed=0,
+                    results={"error": "API key invalid or expired. Please update your API key."}
+                )
+
+           
+            output_path = file.replace(".py", "_doc.py")
+
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(result)
+
+            clean_path = output_path.replace("\\", "/")
+            results[clean_path] = "Saved successfully"
+
+            time.sleep(10)
+
+        except Exception as e:
+            clean_path = file.replace("\\", "/")
+            results[clean_path] = f"Error: {str(e)}"
+
+    return DocstringResponse(
+        files_processed=len(results),
+        results=results
+    )
