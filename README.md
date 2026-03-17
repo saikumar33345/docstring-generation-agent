@@ -1,24 +1,12 @@
-AI Docstring Generation Agent
+# AI Docstring Generation Agent
 
-AI-powered agent that automatically generates clean, professional Google-style docstrings for Python source code.
+An AI-powered backend tool that automatically generates clean, professional Google-style docstrings for Python code.
 
-This project was developed as part of the Epoch AI/ML Club × Nasiko Hackathon.
-
-The agent reads Python files, analyzes the structure, and generates meaningful documentation for functions, classes, and methods while preserving the original code logic.
+Supports single-file processing, folder-level processing, REST API, Web UI, and CLI usage.
 
 ---
 
-Problem Statement
-
-Writing documentation for code is essential but often overlooked. Developers frequently delay writing docstrings, which reduces code readability and maintainability.
-
-This project builds an AI Agent that automatically generates high-quality docstrings for Python codebases.
-
-The system analyzes source code and inserts concise documentation in Google docstring format.
-
----
-
-Key Features
+## Features
 
 - Automatic docstring generation for:
   - Functions
@@ -27,116 +15,122 @@ Key Features
   - Static methods
   - Class methods
   - Nested functions
-- Module-level documentation when no functions/classes exist
-- Preserves original code logic
-- Returns executable Python code
-- Handles edge cases such as empty files
-- Clean and modular backend architecture
+- Multi-file (folder-level) processing
+- Google-style structured docstrings
+- REST API using FastAPI
+- Web-based user interface
+- CLI tool for local usage
+- Handles edge cases such as empty files and invalid paths
 
 ---
 
-Tech Stack
+## Tech Stack
 
-- FastAPI – API backend
-- LangChain – Agent orchestration
-- Google Gemini API – LLM for code understanding
-- Python – Core implementation
+- Backend: FastAPI
+- LLM Integration: LangChain + Google Gemini API
+- Language: Python
+- Frontend: HTML, CSS, JavaScript
+- Deployment: Render
 
 ---
 
-Project Architecture
-
-project_root/
+## Project Structure
+docstring-generation-agent/
 │
 ├── app/
-│   ├── main.py          # FastAPI entry point
-│   ├── config.py        # API key configuration
-│   ├── models.py        # Request / response schemas
-│   ├── tools.py         # File-reading utility
-│   ├── agents.py        # LangChain agent logic
+│ ├── main.py
+│ ├── agents.py
+│ ├── tools.py
+│ ├── models.py
+│ └── config.py
 │
-├── README.md
-
-The architecture separates responsibilities clearly between API handling, agent logic, and utilities.
-
----
-
-Execution Flow
-
-1. User sends a Python file path via API request.
-2. The system reads the file locally.
-3. If the file is empty, it returns a safe response without invoking the model.
-4. Otherwise, the LangChain agent invokes the Gemini LLM.
-5. The model generates structured docstrings.
-6. Post-processing removes markdown artifacts.
-7. Clean executable Python code is returned.
+├── templates/
+│ └── index.html
+│
+├── cli.py
+├── requirements.txt
+└── README.md
 
 ---
 
-API Usage
+## Setup Instructions
 
-Endpoint
+### 1. Clone the repository
+git clone https://github.com/saikumar33345/docstring-generation-agent.git
 
-POST "/generate-docstrings"
+cd docstring-generation-agent
 
-Request
+---
 
+### 2. Create virtual environment
+python -m venv venv
+venv\Scripts\activate # Windows
+### 3. Install dependencies
+pip install -r requirements.txt
+### 4. Configure API Key
+
+Create a `.env` file in the root directory:
+GOOGLE_API_KEY=your_api_key_here
+---
+
+## Running the Application
+
+### Start the API server
+---
+
+## Running the Application
+
+### Start the API server
+uvicorn app.main:app --reload
+Open in browser:http://127.0.0.1:8000
+
+---
+
+## Web Interface
+
+- Enter a file or folder path
+- Click "Generate Docstrings"
+- View generated results in the UI
+
+---
+
+## CLI Usage
+python cli.py app/
+
+---
+
+## API Usage
+
+### Endpoint
+
+### Request Example
 {
-  "file_path": "sample.py"
+"file_path": "app"
 }
 
-Response
+---
 
-{
-  "updated_code": "Python code with generated docstrings"
-}
+## Limitations
+
+- Free-tier Gemini API has strict rate limits
+- File changes may not persist on deployed environments
+- Large files may exceed model context limits
 
 ---
 
-Edge Case Handling
+## Future Improvements
 
-The system explicitly handles several edge cases:
-
-- Empty files (no model invocation)
-- Files without functions or classes
-- Nested functions
-- Mixed scripts containing both functions and module-level code
-- Static methods and class methods
-- Private methods
-- File-not-found scenarios
-- API quota errors
+- AST-based docstring generation
+- Batch processing queue system
+- File upload support in UI
+- Improved error handling and retries
+- Authentication and user management
 
 ---
 
-Assumptions
+## Author
 
-- Input file contains valid Python code
-- File path is accessible locally
-- LLM is responsible for docstring generation
-
----
-
-Limitations
-
-- Very large files may exceed model context limits
-- Free-tier API usage may face quota restrictions
-- No AST-based structural validation (LLM-driven generation approach)
-
----
-
-Future Improvements
-
-- AST-based deterministic docstring insertion
-- Support for large file chunking
-- Folder-level batch processing
-- CLI interface for command-line usage
-- Syntax validation before returning output
-
----
-
-Author
-
-Saikumar
-ECE – IIIT Sri City
+Sai Kumar  
+ECE – IIIT Sri City  
 
 GitHub: https://github.com/saikumar33345
